@@ -10,13 +10,15 @@ HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 
 
 def parse_start_condition(start_str):
-    match = re.match(r"(\d{1,2})\.(\d{2})\s*(am|pm)\s*(\w+)", start_str.strip(), re.I)
+    # Updated regex to make the minutes part optional (.(\d{2}))?
+    match = re.match(r"(\d{1,2})(?:\.(\d{2}))?\s*(am|pm)\s*(\w+)", start_str.strip(), re.I)
     if not match:
         raise ValueError(f"Invalid start condition: '{start_str}'")
 
     hour, minute, am_pm, day_str = match.groups()
     hour = int(hour)
-    minute = int(minute)
+    # If minutes weren't provided (e.g., "8am"), default to 0
+    minute = int(minute) if minute is not None else 0
 
     if am_pm.lower() == "pm" and hour != 12:
         hour += 12
